@@ -1,14 +1,13 @@
 <?php
-//connect to the db and create new PDO
+//require database connection script 
 require "includes/connect.php";  
 
+/*1*/
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     die('Invalid request');
 }
 
-//sanitize input 
-// trim() removes extra whitespace at the start/end of user input.
-// filter_input() helps sanitize incoming form data.
+/*2* sanitize data */
 $firstName = trim(filter_input(INPUT_POST, 'first_name', FILTER_SANITIZE_SPECIAL_CHARS));
 $lastName  = trim(filter_input(INPUT_POST, 'last_name', FILTER_SANITIZE_SPECIAL_CHARS));
 $email     = filter_input(INPUT_POST, 'email', FILTER_SANITIZE_EMAIL);
@@ -16,11 +15,8 @@ $phone     = trim(filter_input(INPUT_POST, 'phone', FILTER_SANITIZE_SPECIAL_CHAR
 $address   = trim(filter_input(INPUT_POST, 'address', FILTER_SANITIZE_SPECIAL_CHARS));
 $comments  = trim(filter_input(INPUT_POST, 'comments', FILTER_SANITIZE_SPECIAL_CHARS));
 
-// Item quantities come in as an array only if your form uses names like:
-// name="items[chaos_croissant]" etc.
-$items = $_POST['items'] ?? [];
+/*3*/
 
-//server-side validation 
 $errors = [];
 
 // Required fields
@@ -53,28 +49,14 @@ if ($address === null || $address === '') {
     $errors[] = "Address is required.";
 }
 
-// Validate order quantities
-// We only accept items with an integer quantity > 0.
-$itemsOrdered = [];
-
-foreach ($items as $item => $quantity) {
-    if (filter_var($quantity, FILTER_VALIDATE_INT) !== false && $quantity > 0) {
-        $itemsOrdered[$item] = $quantity;
-    }
-}
-
-// Require at least one item to be ordered
-if (count($itemsOrdered) === 0) {
-    $errors[] = "Please order at least one item.";
-}
-
 // If there are errors, show them and stop the script before inserting to the DB
 if (!empty($errors)) {
-    require "includes/header.php"; 
+    require "includes/header.php";   
     echo "<div class='alert alert-danger'>";
     echo "<h2>Please fix the following:</h2>";
     echo "<ul>";
     foreach ($errors as $error) {
+        // htmlspecialchars() prevents any unexpected HTML from being rendered
         echo "<li>" . htmlspecialchars($error) . "</li>";
     }
     echo "</ul>";
@@ -84,15 +66,32 @@ if (!empty($errors)) {
     exit;
 }
 
+/*4*/
 
-/* 
-INSERT THE ORDER USING A PREPARED STATEMENT
-*/
+//build our query using named placeholders 
 
+$sql = "INSERT INTO orders (first_name, last_name, phone, address, email, comments) VALUES (:first_name, :last_name, :phone, :address, :email, :comments)"; 
+
+//prepare the query 
+
+$stmt = $pdo->prepare($sql); 
+
+//map the named placeholder to the user data/actual data 
+
+$stmt->bindParam(':first_name', $firstName);
+$stmt->bindParam(':last_name', $lastName); 
+$stmt->bindParam(':phone', $phone); 
+$stmt->bindParam(':email', $email); 
+$stmt->bindParam(':address', $address); 
+$stmt->bindParam(':comments', $comments); 
+
+//execute the query 
+$stmt->execute(); 
+
+//close the connection 
+$pdo = null; 
 ?>
-
-<!--Confirmation Message -->
-<?php require "includes/header.php"; ?> 
+<? require "includes/header.php"; ?> 
 <div class="alert alert-success">
     <h1>Thank you for your order, <?= htmlspecialchars($firstName) ?>!</h1>
     <p>

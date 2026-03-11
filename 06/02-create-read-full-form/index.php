@@ -1,6 +1,6 @@
 <?php require "includes/header.php" ?>
 <main>
-  <h2 class="mb-4"> Order Online - Easy & Simple (And Totally Secure...) 🧁</h2>
+  <h2> Order Online - Easy & Simple (And Totally Secure...) 🧁</h2>
   <form action="process.php" method="post">
 
     <!-- Customer Information -->
@@ -20,7 +20,7 @@
     </fieldset>
 
     <!-- Order Details -->
-    <!--<fieldset>
+    <fieldset>
       <legend>Order Details</legend>
 
       <p>
@@ -44,14 +44,6 @@
           </tr>
 
           <tr>
-            <th scope="row">Midnight Muffin 🌙</th>
-            <td>
-              <label for="midnight_muffin" class="visually-hidden">Midnight Muffin quantity</label>
-              <input type="number" id="midnight_muffin" name="items[midnight_muffin]" min="0" max="24" value="0">
-            </td>
-          </tr>
-
-          <tr>
             <th scope="row">Existential Éclair 🤔</th>
             <td>
               <label for="existential_eclair" class="visually-hidden">Existential Éclair quantity</label>
@@ -69,33 +61,17 @@
             </td>
           </tr>
 
-          <tr>
-            <th scope="row">Finals Week Brownie 📚</th>
-            <td>
-              <label for="finals_week_brownie" class="visually-hidden">Finals Week Brownie quantity</label>
-              <input type="number" id="finals_week_brownie" name="items[finals_week_brownie]" min="0" max="24"
-                value="0">
-            </td>
-          </tr>
-
-          <tr>
-            <th scope="row">Victory Cinnamon Roll 🏆</th>
-            <td>
-              <label for="victory_cinnamon_roll" class="visually-hidden">Victory Cinnamon Roll quantity</label>
-              <input type="number" id="victory_cinnamon_roll" name="items[victory_cinnamon_roll]" min="0" max="24"
-                value="0">
-            </td>
-          </tr>
+    
         </tbody>
       </table>
 
-    </fieldset>-->
+    </fieldset>
 
     <fieldset>
       <legend>Additional Comments</legend>
 
       <p>
-        <label for="comments" class="form-label">Comments (optional)</label><br>
+        <label for="comments" class="form-label">Comments (optional)</label>
         <textarea id="comments" name="comments" rows="4"
           placeholder="Allergies, delivery instructions, custom messages..." class="form-control"></textarea>
       </p>
