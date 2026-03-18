@@ -86,20 +86,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         // If a record is returned, the username or email is already in use
         if ($stmt->fetch()) {
-            $errors[] = "That username or email has already been used!";
+            $errors[] = "That username or email is already in use.";
         }
     }
+
     // --------------------------------------------------
     // Insert the new user into the database
     // --------------------------------------------------
 
     // Only insert if there are still no errors
     if (empty($errors)) {
+
         // Hash the password before storing it in the database
         // This ensures passwords are not stored in plain text
         $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
+
         // SQL query to insert the new user
-        $sql = "INSERT INTO users (username, email, password) VALUES (:username, :email, :password)";
+        $sql = "INSERT INTO users (username, email, password)
+                VALUES (:username, :email, :password)";
+
         // Prepare the insert statement
         $stmt = $pdo->prepare($sql);
 
@@ -109,9 +114,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt->bindParam(':password', $hashedPassword);
 
         // Execute the insert query
-        $stmt->execute(); 
+        $stmt->execute();
+
         // Set a success message
-        $success = "Account create successfully. You can now login!"; 
+        $success = "Account created successfully. You can now log in.";
     }
 }
 ?>
@@ -153,7 +159,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             name="username"
             class="form-control mb-3"
             value="<?= htmlspecialchars($username ?? ''); ?>"
-            required>
+            required
+        >
 
         <!-- Email input -->
         <label for="email" class="form-label">Email</label>
@@ -163,7 +170,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             name="email"
             class="form-control mb-3"
             value="<?= htmlspecialchars($email ?? ''); ?>"
-            required>
+            required
+        >
 
         <!-- Password input -->
         <label for="password" class="form-label">Password</label>
@@ -172,7 +180,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             id="password"
             name="password"
             class="form-control mb-3"
-            required>
+            required
+        >
 
         <!-- Confirm password input -->
         <label for="confirm_password" class="form-label">Confirm Password</label>
@@ -181,7 +190,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             id="confirm_password"
             name="confirm_password"
             class="form-control mb-4"
-            required>
+            required
+        >
 
         <!-- Submit button -->
         <button type="submit" class="btn btn-primary">Create Account</button>

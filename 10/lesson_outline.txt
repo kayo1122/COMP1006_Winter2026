@@ -1,0 +1,290 @@
+# Instructor Guide: Teaching Basic User Authentication in PHP
+
+## Overview
+
+This lesson introduces students to **user authentication using PHP sessions and a MySQL database**. Students will learn how to create user accounts, log in securely using password hashing, maintain login state with sessions, and restrict access to protected pages.
+
+The goal is to build authentication **incrementally**, introducing one new concept at a time so students understand how each component contributes to the full login system.
+
+---
+
+# Learning Outcome
+
+By the end of this lesson, students should be able to:
+
+* Create a `users` database table for storing account data
+* Build a registration form and validate user input
+* Hash and store passwords securely using `password_hash()`
+* Verify credentials using `password_verify()`
+* Create login sessions using `$_SESSION`
+* Restrict access to protected pages using an authentication check
+* Destroy sessions when logging out
+
+---
+
+# Suggested Teaching Sequence
+
+## 1. Create the Users Table
+
+Begin by explaining that applications must store user accounts in the database just like any other data.
+
+Key concepts:
+
+* primary keys
+* unique constraints
+* password storage
+
+Example SQL:
+
+```sql
+CREATE TABLE users (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    username VARCHAR(50) NOT NULL UNIQUE,
+    email VARCHAR(100) NOT NULL UNIQUE,
+    password VARCHAR(255) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+```
+
+Important discussion points:
+
+* Passwords should **never be stored in plain text**
+* Hashes require longer storage fields (255 characters)
+* Unique fields prevent duplicate accounts
+
+---
+
+## 2. Create the Registration Form
+
+Students build a standard HTML form containing:
+
+* username
+* email
+* password
+* confirm password
+
+Explain that forms must be validated before data is inserted into the database.
+
+Server-side validation should include:
+
+* required fields
+* valid email format
+* minimum password length
+* matching password confirmation
+
+Example validation logic:
+
+```php
+if ($password !== $confirmPassword) {
+    $errors[] = "Passwords do not match.";
+}
+```
+
+---
+
+## 3. Store Passwords Securely
+
+Introduce password hashing.
+
+Explain the security principle:
+
+> We never store passwords directly. We store a **hash** of the password.
+
+Example:
+
+```php
+$passwordHash = password_hash($password, PASSWORD_DEFAULT);
+```
+
+Students then insert the hashed password into the database using prepared statements.
+
+This is a good opportunity to reinforce:
+
+* prepared statements
+* SQL injection prevention
+
+---
+
+## 4. Build the Login Form
+
+Students create a login form with:
+
+* email (or username)
+* password
+
+Explain the login process conceptually:
+
+1. User submits credentials
+2. Application retrieves the user from the database
+3. Password is verified against the stored hash
+4. A session is created
+
+---
+
+## 5. Verify the Password
+
+Introduce the verification function:
+
+```php
+password_verify($password, $user['password'])
+```
+
+Explain that this compares the entered password with the stored hash and returns **true or false**.
+
+This demonstrates how hashing still allows secure password comparison.
+
+---
+
+## 6. Introduce Sessions (Login State)
+
+Explain the problem with HTTP:
+
+> HTTP is stateless — the server forgets who the user is between requests.
+
+Sessions solve this by storing user data on the server.
+
+When login succeeds:
+
+```php
+session_start();
+
+$_SESSION['id'] = $user['id'];
+$_SESSION['username'] = $user['username'];
+
+header("Location: orders.php");
+exit();
+```
+
+Key points:
+
+* `session_start()` must run before any HTML output
+* session variables store user identity
+* sessions allow users to remain logged in across pages
+
+---
+
+## 7. Create an Authentication Check (auth.php)
+
+Introduce the idea of **protecting pages**.
+
+Create a small script that verifies whether the user is logged in.
+
+Example `includes/auth.php`:
+
+```php
+<?php
+session_start();
+
+if (empty($_SESSION['id'])) {
+    header('Location: login.php');
+    exit();
+}
+```
+
+Explain that this file can be reused across the application.
+
+---
+
+## 8. Protect the Orders Page
+
+To restrict access, students simply include the authentication check at the top of any protected page.
+
+Example:
+
+```php
+require "includes/auth.php";
+```
+
+When the page loads:
+
+1. `auth.php` runs
+2. the session is checked
+3. if the user is not logged in they are redirected to the login page
+
+This is often the moment when students clearly see authentication working.
+
+---
+
+## 9. Add Logout Functionality
+
+Users must also be able to end their session.
+
+Example `logout.php`:
+
+```php
+<?php
+session_start();
+
+$_SESSION = [];
+session_destroy();
+
+header("Location: login.php");
+exit();
+```
+
+Explain that logout removes the stored session information so the user is no longer authenticated.
+
+---
+
+# Final Authentication Flow
+
+The complete login system follows this sequence:
+
+```
+Register
+   ↓
+User stored in database
+   ↓
+Login
+   ↓
+password_verify()
+   ↓
+Session created
+   ↓
+Access protected page
+   ↓
+auth.php verifies session
+   ↓
+Logout destroys session
+```
+
+---
+
+# Teaching Tips
+
+### Introduce one concept at a time
+
+Avoid introducing forms, hashing, sessions, and authentication simultaneously. Each step should build on the previous one.
+
+### Reinforce security concepts
+
+Students should understand why we use:
+
+* password hashing
+* prepared statements
+* server-side validation
+
+### Use visible milestones
+
+Students gain confidence when they see clear progress:
+
+1. Register user
+2. Login successfully
+3. Access restricted page
+4. Logout and lose access
+
+---
+
+# Optional Enhancements (If Time Allows)
+
+Students can extend the system by adding:
+
+* login error messages
+* preventing duplicate usernames
+* dynamic navigation menus
+* role-based access (admin vs user)
+* password reset functionality
+
+---
+
+This lesson provides the foundation for authentication systems used in most web applications and prepares students for more advanced topics such as authorization, API authentication, and secure session management.

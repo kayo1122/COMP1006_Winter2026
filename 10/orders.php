@@ -1,5 +1,4 @@
 <?php
-//include auth file to restrict users access to the page 
 require "includes/auth.php";
 require "includes/header_admin.php";
 require "includes/connect.php";
