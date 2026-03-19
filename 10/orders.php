@@ -1,5 +1,4 @@
 <?php
-//include auth file to restrict users access to the page 
 require "includes/auth.php";
 require "includes/header_admin.php";
 require "includes/connect.php";
@@ -13,7 +12,7 @@ require "includes/connect.php";
 
 
 // Get all orders (newest first)
-$sql = "SELECT * FROM orders ORDER BY created_at DESC";
+$sql = "SELECT * FROM orders1 ORDER BY created_at DESC";
 $stmt = $pdo->prepare($sql);
 $stmt->execute();
 $orders = $stmt->fetchAll();
